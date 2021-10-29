@@ -10,14 +10,18 @@ using Newtonsoft.Json;
 
 namespace CarFleetManager
 {
+    
     public class RabbitReceiver : BackgroundService
 {
         private IModel _channel;
         private IConnection _connection;
+        
+        public static double lastValue = 0.0;
+
 
         public RabbitReceiver()
         {
-            System.Console.WriteLine("RabbitReceiver()");
+            // System.Console.WriteLine("RabbitReceiver()");
             InitializeRabbitMqListener();
         }
 
@@ -44,11 +48,12 @@ namespace CarFleetManager
             consumer.Received += (ch, ea) =>
             {
                 var content = Encoding.UTF8.GetString(ea.Body.ToArray());
-                System.Console.WriteLine(content);
+                // System.Console.WriteLine(content);
                 var data = JsonConvert.DeserializeObject<SensorDataModel>(content);
-                System.Console.WriteLine($"Speed: {data?.Value}");
+                // System.Console.WriteLine($"Speed: {data?.Value}");
 
                 HandleMessage(data);
+                lastValue = data.Value;
 
                 _channel.BasicAck(ea.DeliveryTag, false);
             };
