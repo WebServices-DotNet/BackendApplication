@@ -33,7 +33,7 @@ namespace CarFleetManager
                 UserName = "guest",
                 Password = "guest"
             };
-            Thread.Sleep(10000);
+            Thread.Sleep(20000);
             _connection = factory.CreateConnection();
             _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
             _channel = _connection.CreateModel();
