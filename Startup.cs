@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using CarFleetManager.Models;
+using CarFleetManager.Repository;
 using CarFleetManager.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,9 +38,25 @@ namespace CarFleetManager
             services.AddSingleton<ICarFleetDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<CarFleetDatabaseSettings>>().Value);
 
+            services.AddScoped(typeof(IMongoRepository<Car>), typeof(MongoRepository<Car>));
             services.AddSingleton<CarService>();
+            
+            services.AddScoped(typeof(IMongoRepository<Accel>), typeof(MongoRepository<Accel>));
+            services.AddSingleton<AccelService>();
+            
+            services.AddScoped(typeof(IMongoRepository<Speed>), typeof(MongoRepository<Speed>));
+            services.AddSingleton<SpeedService>();
+            
+            services.AddScoped(typeof(IMongoRepository<Temperature>), typeof(MongoRepository<Temperature>));
+            services.AddSingleton<TemperatureService>();
+            
+            services.AddScoped(typeof(IMongoRepository<EngineSpeed>), typeof(MongoRepository<EngineSpeed>));
+            services.AddSingleton<EngineService>();
+            
+            services.AddSingleton<DataService>();
 
             services.AddControllers();
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CarFleetManager", Version = "v1" });

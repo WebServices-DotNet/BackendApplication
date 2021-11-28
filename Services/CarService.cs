@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using CarFleetManager.Models;
+using CarFleetManager.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -8,39 +10,36 @@ namespace CarFleetManager.Services
     
     public class CarService
     {
-        private readonly IMongoCollection<Car> _cars;
+        private readonly IMongoRepository<Car>  _carRepository;
 
-        public CarService(ICarFleetDatabaseSettings settings)
+        public CarService(IMongoRepository<Car> carRepository)
         {
-            System.Console.WriteLine($"Start connection {settings.ConnectionString}");
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-           // _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait();
-           _cars = database.GetCollection<Car>("Cars");
+            _carRepository = carRepository;
         }
 
         public List<Car> Get()
         {
-            return _cars.Find(car => true).ToList();
+            return _carRepository.FilterBy(car => true).ToList();
         }
 
-
-        public Car Get(string id) =>
-            _cars.Find<Car>(car => car.Id == id).FirstOrDefault();
+        public Car Get(string carId) =>
+            _carRepository.FindOne(car => car.CarId == carId);
 
         public Car Create(Car car)
         {
-            _cars.InsertOne(car);
+            _carRepository.InsertOne(car);
             return car;
         }
 
-        public void Update(string id, Car carIn) =>
-            _cars.ReplaceOne(car => car.Id == id, carIn);
-
         public void Remove(Car carIn) =>
-            _cars.DeleteOne(car => car.Id == carIn.Id);
+            _carRepository.DeleteManyAsync(car => car.CarId == carIn.CarId);
 
-        public void Remove(string id) => 
-            _cars.DeleteOne(car => car.Id == id);
+        public void Remove(string carId) => 
+            _carRepository.DeleteManyAsync(car => car.CarId == carId);
+        
+        public void Drop()
+        {
+            _carRepository.Drop();
+        }
     }
 }

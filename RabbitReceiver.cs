@@ -2,6 +2,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CarFleetManager;
+using CarFleetManager.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -17,11 +18,12 @@ namespace CarFleetManager
         private IConnection _connection;
         
         public static double lastValue = 0.0;
+        private readonly DataService  _dataService;
 
-
-        public RabbitReceiver()
+        public RabbitReceiver(DataService dataService)
         {
-            // System.Console.WriteLine("RabbitReceiver()");
+            System.Console.WriteLine("RabbitReceiver()");
+            _dataService = dataService;
             InitializeRabbitMqListener();
         }
 
@@ -48,12 +50,9 @@ namespace CarFleetManager
             consumer.Received += (ch, ea) =>
             {
                 var content = Encoding.UTF8.GetString(ea.Body.ToArray());
-                // System.Console.WriteLine(content);
                 var data = JsonConvert.DeserializeObject<SensorDataModel>(content);
-                // System.Console.WriteLine($"Speed: {data?.Value}");
 
                 HandleMessage(data);
-                lastValue = data.Value;
 
                 _channel.BasicAck(ea.DeliveryTag, false);
             };
@@ -69,7 +68,7 @@ namespace CarFleetManager
 
         private void HandleMessage(SensorDataModel data)
         {
-            // _customerNameUpdateService.UpdateSensor(data);
+            _dataService.Update(data);
         }
 
         private void OnConsumerCancelled(object sender, ConsumerEventArgs e)
