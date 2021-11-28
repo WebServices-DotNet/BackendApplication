@@ -62,8 +62,12 @@ namespace CarFleetManager
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CarFleetManager", Version = "v1" });
             });
 
-
             services.AddHostedService<RabbitReceiver>();
+            
+            services.AddCors(c =>  
+            {  
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());  
+            });
 
             services.AddRazorPages();
 
@@ -84,7 +88,9 @@ namespace CarFleetManager
             app.UseRouting();
 
             app.UseAuthorization();
-
+            
+            app.UseCors(options => options.AllowAnyOrigin());  
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
