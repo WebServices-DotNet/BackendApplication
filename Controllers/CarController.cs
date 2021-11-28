@@ -27,9 +27,9 @@ namespace CarFleetManager.Controllers
 
         // get all cars
         [HttpGet]
-        public ActionResult<List<String>> Get()  {
+        public ActionResult<List<CarResponse>> Get()  {
             
-            var cars = _carService.Get().ConvertAll(input => input.CarId);
+            var cars = _carService.Get().ConvertAll(input => new CarResponse(input.CarId, input.Name));
             return cars;
         }
         
